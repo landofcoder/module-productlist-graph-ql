@@ -1,0 +1,26 @@
+{
+    "name": "landofcoder/module-productlist-graphql",
+    "description": "Magento 2 Product List GraphQl extension",
+    "type": "magento2-module",
+    "license": "OSL-3.0",
+    "authors": [
+        {
+            "name": "landofcoder",
+            "email": "info@landofcoder.com",
+            "homepage": "https://landofcoder.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "version": "1.0.0",
+    "require": {
+        "landofcoder/module-productlist-graphql": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Lof\\ProductListGraphQl\\": ""
+        },
+        "files": [
+            "registration.php"
+        ]
+    }
+}
