@@ -33,7 +33,7 @@ class FilterArgumentProduct implements FieldEntityAttributesInterface
     {
         $fields = [];
         /** @var Field $field */
-        foreach ($this->config->getConfigElement('ProductInterface')->getFields() as $field) {
+        foreach ($this->config->getConfigElement('LofProduct')->getFields() as $field) {
             $fields[$field->getName()] = [
                 'type' => 'String',
                 'fieldName' => $field->getName(),

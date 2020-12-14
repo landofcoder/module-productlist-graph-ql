@@ -7,65 +7,63 @@ declare(strict_types=1);
 
 namespace Lof\ProductListGraphQl\Model\Resolver;
 
-use Magento\Framework\Exception\NoSuchEntityException;
+use Lof\ProductListGraphQl\Model\Resolver\Products\Query\ProductQueryInterface;
+use Magento\Catalog\Model\Layer\Resolver;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Exception\GraphQlInputException;
-use Magento\Framework\GraphQl\Exception\GraphQlNoSuchEntityException;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
-use Ves\Productlist\Api\ProductRepositoryInterface;
-use Magento\Framework\GraphQl\Query\Resolver\Argument\SearchCriteria\Builder as SearchCriteriaBuilder;
 
 class Random implements ResolverInterface
 {
 
     /**
-     * @var SearchCriteriaBuilder
+     * @var ProductQueryInterface
      */
-    private $searchCriteriaBuilder;
-    /**
-     * @var ProductRepositoryInterface
-     */
-    private $productRepository;
+    private $searchQuery;
 
-    /**
-     * @param ProductRepositoryInterface $productRepository
-     * @param SearchCriteriaBuilder $searchCriteriaBuilder
-     */
     public function __construct(
-        ProductRepositoryInterface $productRepository,
-        SearchCriteriaBuilder $searchCriteriaBuilder
+        ProductQueryInterface $searchQuery
     )
     {
-        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
-        $this->productRepository = $productRepository;
+        $this->searchQuery = $searchQuery;
     }
-
-    /**
-     * @inheritdoc
-     */
     public function resolve(
         Field $field,
         $context,
         ResolveInfo $info,
         array $value = null,
         array $args = null
-    ) {
+    )
+    {
         if ($args['currentPage'] < 1) {
             throw new GraphQlInputException(__('currentPage value must be greater than 0.'));
         }
         if ($args['pageSize'] < 1) {
             throw new GraphQlInputException(__('pageSize value must be greater than 0.'));
         }
-        $searchCriteria = $this->searchCriteriaBuilder->build( 'products', $args );
-        $searchCriteria->setCurrentPage( $args['currentPage'] );
-        $searchCriteria->setPageSize( $args['pageSize'] );
 
-        $searchResult = $this->productRepository->getRandomProducts( $searchCriteria );
+        $searchResult = $this->searchQuery->getResult($args, $info, $context , 'random');
+
+        if ($searchResult->getCurrentPage() > $searchResult->getTotalPages() && $searchResult->getTotalCount() > 0) {
+            throw new GraphQlInputException(
+                __(
+                    'currentPage value %1 specified is greater than the %2 page(s) available.',
+                    [$searchResult->getCurrentPage(), $searchResult->getTotalPages()]
+                )
+            );
+        }
 
         return [
             'total_count' => $searchResult->getTotalCount(),
-            'items'       => $searchResult->getItems(),
+            'items' => $searchResult->getProductsSearchResult(),
+            'page_info' => [
+                'page_size' => $searchResult->getPageSize(),
+                'current_page' => $searchResult->getCurrentPage(),
+                'total_pages' => $searchResult->getTotalPages()
+            ],
+            'search_result' => $searchResult,
+            'layer_type' => isset($args['search']) ? Resolver::CATALOG_LAYER_SEARCH : Resolver::CATALOG_LAYER_CATEGORY,
         ];
     }
 }

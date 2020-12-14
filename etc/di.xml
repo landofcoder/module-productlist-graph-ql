@@ -4,7 +4,7 @@
     <type name="Magento\Framework\GraphQl\Query\Resolver\Argument\FieldEntityAttributesPool">
         <arguments>
             <argument name="attributesInstances" xsi:type="array">
-                <item name="products" xsi:type="object">\Lof\ProductListGraphQl\Model\Resolver\FilterArgumentProduct</item>
+                <item name="lof_product_list" xsi:type="object">\Lof\ProductListGraphQl\Model\Resolver\FilterArgumentProduct</item>
             </argument>
         </arguments>
     </type>

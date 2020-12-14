@@ -57,7 +57,7 @@ class Latest implements ResolverInterface
         if ($args['pageSize'] < 1) {
             throw new GraphQlInputException(__('pageSize value must be greater than 0.'));
         }
-        $searchCriteria = $this->searchCriteriaBuilder->build( 'products', $args );
+        $searchCriteria = $this->searchCriteriaBuilder->build( 'lof_product_list', $args );
         $searchCriteria->setCurrentPage( $args['currentPage'] );
         $searchCriteria->setPageSize( $args['pageSize'] );
 
