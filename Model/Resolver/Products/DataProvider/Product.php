@@ -11,7 +11,7 @@ use Magento\Catalog\Api\Data\ProductSearchResultsInterfaceFactory;
 use Magento\Framework\Api\SearchResultsInterface;
 use Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessorInterface;
 use Magento\GraphQl\Model\Query\ContextInterface;
-use Ves\Productlist\Model\ProductFactory as ProductlistProductFactory;
+use Ves\Productlist\Model\ProductFactory as ProductListProductFactory;
 
 /**
  * Product field data provider, used for GraphQL resolver processing.
@@ -42,10 +42,6 @@ class Product
      * @var Visibility
      */
     private $visibility;
-    /**
-     * @var ProductlistProductFactory
-     */
-    private $productFactory;
 
     /**
      * @param CollectionFactory $collectionFactory
@@ -53,7 +49,7 @@ class Product
      * @param Visibility $visibility
      * @param CollectionProcessorInterface $collectionProcessor
      * @param CollectionPostProcessor $collectionPostProcessor
-     * @param ProductlistProductFactory $productFactory
+     * @param ProductListProductFactory $productFactory
      */
     public function __construct(
         CollectionFactory $collectionFactory,
@@ -61,7 +57,7 @@ class Product
         Visibility $visibility,
         CollectionProcessorInterface $collectionProcessor,
         CollectionPostProcessor $collectionPostProcessor,
-        ProductlistProductFactory $productFactory
+        ProductListProductFactory $productFactory
     ) {
         $this->collectionFactory = $collectionFactory;
         $this->searchResultsFactory = $searchResultsFactory;
@@ -88,21 +84,10 @@ class Product
         bool $isSearch = false,
         bool $isChildSearch = false,
         ContextInterface $context = null,
-        $source_key = "latest"
+        $source_key = 'latest'
     ): SearchResultsInterface {
         $product = $this->productFactory->create();
         $config = [];
-        foreach ($searchCriteria->getFilterGroups() as $filterGroup) {
-            $filters = $filterGroup->getFilters();
-            if(is_array($filters)) {
-                foreach ($filters as $filter) {
-                    if("categories" == $filter->getField()){
-                        $config['categories'] = explode(",",$filter->getValue());
-                        break;
-                    }
-                }
-            }
-        }
         switch ($source_key) {
             case 'latest':
                 $collection = $product->getLatestProducts($config);

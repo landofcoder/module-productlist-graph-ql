@@ -16,9 +16,8 @@ interface ProductQueryInterface
      * @param array $args
      * @param ResolveInfo $info
      * @param ContextInterface $context
-     * @param string $type
      * @return SearchResult
      */
-    public function getResult(array $args, ResolveInfo $info, ContextInterface $context, string $type): SearchResult;
+    public function getResult(array $args, ResolveInfo $info, ContextInterface $context): SearchResult;
 
 }

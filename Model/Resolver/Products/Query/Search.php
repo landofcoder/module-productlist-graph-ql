@@ -5,10 +5,10 @@
  */
 declare(strict_types=1);
 
-namespace Lof\MarketplaceGraphQl\Model\Resolver\Products\Query;
+namespace Lof\ProductListGraphQl\Model\Resolver\Products\Query;
 
 use Magento\CatalogGraphQl\DataProvider\Product\SearchCriteriaBuilder;
-use Lof\MarketplaceGraphQl\Model\Resolver\Products\DataProvider\ProductSearch;
+use Lof\ProductListGraphQl\Model\Resolver\Products\DataProvider\ProductSearch;
 use Magento\CatalogGraphQl\Model\Resolver\Products\SearchResult;
 use Magento\CatalogGraphQl\Model\Resolver\Products\SearchResultFactory;
 use Magento\Framework\Api\Search\SearchCriteriaInterface;
@@ -44,7 +44,7 @@ class Search implements ProductQueryInterface
     private $fieldSelection;
 
     /**
-     * @var ProductSearch
+     * @var Product
      */
     private $productsProvider;
 
@@ -93,7 +93,6 @@ class Search implements ProductQueryInterface
     ): SearchResult {
         $queryFields = $this->fieldSelection->getProductsFieldSelection($info);
         $searchCriteria = $this->buildSearchCriteria($args, $info);
-
         $realPageSize = $searchCriteria->getPageSize();
         $realCurrentPage = $searchCriteria->getCurrentPage();
         //Because of limitations of sort and pagination on search API we will query all IDS
@@ -105,22 +104,14 @@ class Search implements ProductQueryInterface
         //Address limitations of sort and pagination on search API apply original pagination from GQL query
         $searchCriteria->setPageSize($realPageSize);
         $searchCriteria->setCurrentPage($realCurrentPage);
-        if(isset($args['seller_id'])) {
-            $searchResults = $this->productsProvider->getList(
-                $searchCriteria,
-                $itemsResults,
-                $queryFields,
-                $context,
-                $args['seller_id']
-            );
-        } else {
-            $searchResults = $this->productsProvider->getList(
-                $searchCriteria,
-                $itemsResults,
-                $queryFields,
-                $context
-            );
-        }
+
+        $searchResults = $this->productsProvider->getList(
+            $searchCriteria,
+            $itemsResults,
+            $queryFields,
+            $context,
+            $args['type']
+        );
 
         $totalPages = $realPageSize ? ((int)ceil($searchResults->getTotalCount() / $realPageSize)) : 0;
 
