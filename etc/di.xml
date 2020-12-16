@@ -1,12 +1,4 @@
 <?xml version="1.0" ?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-
-    <type name="Magento\Framework\GraphQl\Query\Resolver\Argument\FieldEntityAttributesPool">
-        <arguments>
-            <argument name="attributesInstances" xsi:type="array">
-                <item name="products" xsi:type="object">\Lof\ProductListGraphQl\Model\Resolver\FilterArgumentProduct</item>
-            </argument>
-        </arguments>
-    </type>
-
+    <preference type="Lof\ProductListGraphQl\Model\Resolver\Products\Query\Search" for="Lof\ProductListGraphQl\Model\Resolver\Products\Query\ProductQueryInterface"/>
 </config>

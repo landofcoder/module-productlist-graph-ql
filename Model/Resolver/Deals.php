@@ -7,42 +7,45 @@ declare(strict_types=1);
 
 namespace Lof\ProductListGraphQl\Model\Resolver;
 
-use Magento\Framework\Exception\NoSuchEntityException;
+use Lof\ProductListGraphQl\Model\Resolver\Products\Query\ProductQueryInterface;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Exception\GraphQlInputException;
-use Magento\Framework\GraphQl\Exception\GraphQlNoSuchEntityException;
+use Magento\Framework\GraphQl\Query\Resolver\ContextInterface;
+use Magento\Framework\GraphQl\Query\Resolver\Value;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
-use Ves\Productlist\Api\ProductRepositoryInterface;
-use Magento\Framework\GraphQl\Query\Resolver\Argument\SearchCriteria\Builder as SearchCriteriaBuilder;
 
+/**
+ * Class Deals
+ * @package Lof\ProductListGraphQl\Model\Resolver
+ */
 class Deals implements ResolverInterface
 {
 
     /**
-     * @var SearchCriteriaBuilder
+     * @var ProductQueryInterface
      */
-    private $searchCriteriaBuilder;
-    /**
-     * @var ProductRepositoryInterface
-     */
-    private $productRepository;
+    private $searchQuery;
 
     /**
-     * @param ProductRepositoryInterface $productRepository
-     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * Random constructor.
+     * @param ProductQueryInterface $searchQuery
      */
     public function __construct(
-        ProductRepositoryInterface $productRepository,
-        SearchCriteriaBuilder $searchCriteriaBuilder
+        ProductQueryInterface $searchQuery
     )
     {
-        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
-        $this->productRepository = $productRepository;
+        $this->searchQuery = $searchQuery;
     }
 
     /**
-     * @inheritdoc
+     * @param Field $field
+     * @param ContextInterface $context
+     * @param ResolveInfo $info
+     * @param array|null $value
+     * @param array|null $args
+     * @return array|Value|mixed
+     * @throws GraphQlInputException
      */
     public function resolve(
         Field $field,
@@ -50,22 +53,29 @@ class Deals implements ResolverInterface
         ResolveInfo $info,
         array $value = null,
         array $args = null
-    ) {
+    )
+    {
         if ($args['currentPage'] < 1) {
             throw new GraphQlInputException(__('currentPage value must be greater than 0.'));
         }
         if ($args['pageSize'] < 1) {
             throw new GraphQlInputException(__('pageSize value must be greater than 0.'));
         }
-        $searchCriteria = $this->searchCriteriaBuilder->build( 'products', $args );
-        $searchCriteria->setCurrentPage( $args['currentPage'] );
-        $searchCriteria->setPageSize( $args['pageSize'] );
+        $args['type'] = 'deals';
+        $searchResult = $this->searchQuery->getResult($args, $info, $context);
 
-        $searchResult = $this->productRepository->getDealsProducts( $searchCriteria );
+        if ($searchResult->getCurrentPage() > $searchResult->getTotalPages() && $searchResult->getTotalCount() > 0) {
+            throw new GraphQlInputException(
+                __(
+                    'currentPage value %1 specified is greater than the %2 page(s) available.',
+                    [$searchResult->getCurrentPage(), $searchResult->getTotalPages()]
+                )
+            );
+        }
 
         return [
             'total_count' => $searchResult->getTotalCount(),
-            'items'       => $searchResult->getItems(),
+            'items' => $searchResult->getProductsSearchResult()
         ];
     }
 }
