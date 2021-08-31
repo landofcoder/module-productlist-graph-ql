@@ -13,7 +13,6 @@
     "minimum-stability": "dev",
     "version": "1.0.0",
     "require": {
-        "venustheme/magento2-product-list": "*"
     },
     "autoload": {
         "psr-4": {
