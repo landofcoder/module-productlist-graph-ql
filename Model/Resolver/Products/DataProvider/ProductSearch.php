@@ -108,19 +108,19 @@ class ProductSearch
             case 'latest':
                 $collection = $product->getLatestProducts($config);
                 break;
-            case 'new_arrival':
+            case 'newArrival':
                 $collection = $product->getNewarrivalProducts($config);
                 break;
             case 'special':
                 $collection = $product->getSpecialProducts($config);
                 break;
-            case 'most_popular':
+            case 'mostPopular':
                 $collection = $product->getMostViewedProducts($config);
                 break;
-            case 'best_seller':
+            case 'bestseller':
                 $collection = $product->getBestsellerProducts($config);
                 break;
-            case 'top_rated':
+            case 'topRated':
                 $collection = $product->getTopratedProducts($config);
                 break;
             case 'random':

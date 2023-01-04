@@ -14,12 +14,12 @@ use Magento\Framework\GraphQl\Query\Resolver\ContextInterface;
 use Magento\Framework\GraphQl\Query\Resolver\Value;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
+use Magento\Catalog\Model\Layer\Resolver;
 
 /**
- * Class Random
- * @package Lof\ProductListGraphQl\Model\Resolver
+ * Class ListProducts
  */
-class Random implements ResolverInterface
+class ListProducts implements ResolverInterface
 {
 
     /**
@@ -33,8 +33,7 @@ class Random implements ResolverInterface
      */
     public function __construct(
         ProductQueryInterface $searchQuery
-    )
-    {
+    ) {
         $this->searchQuery = $searchQuery;
     }
 
@@ -61,7 +60,7 @@ class Random implements ResolverInterface
         if ($args['pageSize'] < 1) {
             throw new GraphQlInputException(__('pageSize value must be greater than 0.'));
         }
-        $args['type'] = 'random';
+        $args['type'] = $args["sourceType"];
         $searchResult = $this->searchQuery->getResult($args, $info, $context);
 
         if ($searchResult->getCurrentPage() > $searchResult->getTotalPages() && $searchResult->getTotalCount() > 0) {
@@ -73,9 +72,26 @@ class Random implements ResolverInterface
             );
         }
 
-        return [
+        $totalPages = $args['pageSize'] ? ((int)ceil($searchResult->getTotalCount() / $args['pageSize'])) : 0;
+        $layerType = isset($args['search']) ? Resolver::CATALOG_LAYER_SEARCH : Resolver::CATALOG_LAYER_CATEGORY;
+
+        $data = [
             'total_count' => $searchResult->getTotalCount(),
-            'items' => $searchResult->getProductsSearchResult()
+            'items' => $searchResult->getProductsSearchResult(),
+            'page_info' => [
+                'page_size' => $args['pageSize'],
+                'current_page' => $args['currentPage'],
+                'total_pages' => $totalPages
+            ],
+            'search_result' => $searchResult,
+            'layer_type' => $layerType,
+            'search' => isset($args['search']) ? $args['search'] : ''
         ];
+
+        if (isset($args['filter']['category_id'])) {
+            $data['categories'] = $args['filter']['category_id']['eq'] ?? $args['filter']['category_id']['in'];
+            $data['categories'] = is_array($data['categories']) ? $data['categories'] : [$data['categories']];
+        }
+        return $data;
     }
 }
