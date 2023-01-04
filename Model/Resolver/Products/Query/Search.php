@@ -44,7 +44,7 @@ class Search implements ProductQueryInterface
     private $fieldSelection;
 
     /**
-     * @var Product
+     * @var ProductSearch
      */
     private $productsProvider;
 
@@ -118,10 +118,11 @@ class Search implements ProductQueryInterface
         $productArray = [];
         /** @var \Magento\Catalog\Model\Product $product */
         foreach ($searchResults->getItems() as $product) {
-            $productArray[$product->getId()] = $product->getData();
-            $productArray[$product->getId()]['model'] = $product;
+            if ($product && !empty($product->getData())) {
+                $productArray[$product->getId()] = $product->getData();
+                $productArray[$product->getId()]['model'] = $product;
+            }
         }
-
         return $this->searchResultFactory->create(
             [
                 'totalCount' => $searchResults->getTotalCount(),

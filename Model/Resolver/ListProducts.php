@@ -52,8 +52,7 @@ class ListProducts implements ResolverInterface
         ResolveInfo $info,
         array $value = null,
         array $args = null
-    )
-    {
+    ) {
         if ($args['currentPage'] < 1) {
             throw new GraphQlInputException(__('currentPage value must be greater than 0.'));
         }
@@ -74,7 +73,6 @@ class ListProducts implements ResolverInterface
 
         $totalPages = $args['pageSize'] ? ((int)ceil($searchResult->getTotalCount() / $args['pageSize'])) : 0;
         $layerType = isset($args['search']) ? Resolver::CATALOG_LAYER_SEARCH : Resolver::CATALOG_LAYER_CATEGORY;
-
         $data = [
             'total_count' => $searchResult->getTotalCount(),
             'items' => $searchResult->getProductsSearchResult(),
